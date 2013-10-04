@@ -101,6 +101,7 @@ namespace EM_Sim
             return Commands.EvaluateCommand(command, args, sim, this);
         }
 
+        const int maxLineWidth = 70;
         public void Draw()
         {
             if (tabToggle)
@@ -110,10 +111,33 @@ namespace EM_Sim
                 overlay.Draw(spriteBatch);
 
                 // Draw previous messages
-                Vector2 startPos = new Vector2(10, device.Viewport.Height - 50);
-                for (int i = lines.Count-1; i >= 0; i--)
+                List<string> linesToRender = new List<string>(lines);
+                for (int i = 0; i < linesToRender.Count; i++)
                 {
-                    spriteBatch.DrawString(font, lines[i], startPos, Color.White);
+                    string line = linesToRender[i];
+                    if (line.Length > maxLineWidth)
+                    {
+                        // Wrap by word... find the last space before the linebreak
+                        int lineLength = 0;
+                        for (int j = maxLineWidth - 1; j >= 0; j--)
+                        {
+                            if (line[j].Equals(' '))
+                            {
+                                lineLength = j;
+                                break;
+                            }
+                        }
+                        string fitsOnThisLine = line.Substring(0, lineLength);
+                        string nextLine = line.Substring(lineLength + 1);
+                        linesToRender[i] = fitsOnThisLine;
+                        linesToRender.Insert(i + 1, nextLine);
+                    }
+                }
+
+                Vector2 startPos = new Vector2(10, device.Viewport.Height - 50);
+                for (int i = linesToRender.Count - 1; i >= 0; i--)
+                {
+                    spriteBatch.DrawString(font, linesToRender[i], startPos, Color.White);
                     startPos += new Vector2(0, -20);
                 }
 

@@ -15,7 +15,7 @@ namespace EM_Sim
         const string selectHelpText = "select a charge ID: select [ID]";
         const string toggleHelpText = "toggle [vectors|lines]";
         const string clearHelpText = "clears the console of text";
-        const string evalHelpText = "evaluates the value of the E or B field at a given position vecotor. \neval [E|B] [positionVec]";
+        const string evalHelpText = "evaluates the value of the E or B field at a given position vecotor. eval [E|B] [positionVec]";
 
         static int selectedID = -1;
 
