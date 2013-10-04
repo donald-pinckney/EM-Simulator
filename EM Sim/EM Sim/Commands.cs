@@ -9,12 +9,13 @@ namespace EM_Sim
     class Commands
     {
         const string helpText = "Commands: help add quit ls select delete toggle clear";
-        const string addHelpText = "add a charge: add charge [positionVec] [chargeInMicroCoul]";
+        const string addHelpText = "add a point charge: add charge [positionVec] [chargeInMicroCoul]";
         const string quitHelpText = "quit the program";
         const string lsHelpText = "list the charges";
         const string selectHelpText = "select a charge ID: select [ID]";
         const string toggleHelpText = "toggle [vectors|lines]";
         const string clearHelpText = "clears the console of text";
+        const string evalHelpText = "evaluates the value of the E or B field at a given position vecotor. \neval [E|B] [positionVec]";
 
         static int selectedID = -1;
 
@@ -60,6 +61,11 @@ namespace EM_Sim
             }
             else if (command == "add")
             {
+                if (args.Length < 1)
+                {
+                    return addHelpText;
+                }
+
                 if (args[0] == "charge")
                 {
                     if (args.Length != 3) return addHelpText;
@@ -194,6 +200,10 @@ namespace EM_Sim
             }
             else if (command == "eval")
             {
+                if (args.Length < 2)
+                {
+                    return evalHelpText;
+                }
                 if (args[0] == "E")
                 {
                     Vector3 pos = ParseVector3(args[1]);
