@@ -15,14 +15,12 @@ namespace EM_Sim
     public class EField : VectorField
     {
         private List<PointCharge> charges = new List<PointCharge>();
-
-        private VertexPositionColor[] eFieldLineVerts;
-
-        BasicEffect lineEffect;
-
         int idCounter = 0;
 
-        public bool shouldDrawLines = true;
+        private VertexPositionColor[] eFieldLineVerts;
+        BasicEffect lineEffect;
+
+        public bool shouldDrawLines = false;
 
         public EField(GraphicsDevice d) : base(d) 
         {

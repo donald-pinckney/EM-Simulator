@@ -11,7 +11,7 @@ namespace EM_Sim
     public class VectorField
     {
         private List<Arrow> arrows = new List<Arrow>();
-        public bool shouldDrawVectors = false;
+        public bool shouldDrawVectors = true;
         protected GraphicsDevice device;
         public VectorField(GraphicsDevice d)
         {

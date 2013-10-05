@@ -76,6 +76,8 @@ namespace EM_Sim
                     Vector3 pos = ParseVector3(vectorString);
                     float charge = float.Parse(chargeString);
                     sim.AddCharge(pos, charge);
+                    sim.GetField().generateArrows();
+                    sim.GetField().generateEFieldLines();
                     return "";
                 }
                 else if (args[0] == "circle")

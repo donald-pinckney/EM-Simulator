@@ -66,10 +66,6 @@ namespace EM_Sim
 
             // Field
             field = new EField(device);
-            /*field.AddCharge(new Vector3(10, 0, 0), 0.1f);
-            field.AddCharge(new Vector3(-10, 0, 0), -0.1f);
-            field.generateArrows();
-            field.generateEFieldLines();*/
 
             // Setup console
             console = new EMConsole(device, Content, this);
@@ -99,6 +95,7 @@ namespace EM_Sim
             base.Update(gameTime);
         }
 
+        #region Key Handling for Fullscreen and Screenshots
         void KeyUpEvent(object sender, KeyEventArgs e)
         {
             if (hasInput)
@@ -146,13 +143,12 @@ namespace EM_Sim
                 screenshotRender.SaveAsPng(fs, screenshotRender.Width, screenshotRender.Height);
             }
         }
+        #endregion
 
 
         public void AddCharge(Vector3 pos, float chargeInMicroCouls)
         {
             field.AddCharge(pos, chargeInMicroCouls);
-            //field.generateArrows();
-            //field.generateEFieldLines();
         }
         public void SetInputEnabled(bool input)
         {
