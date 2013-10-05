@@ -49,7 +49,7 @@ namespace EM_Sim
             device = deviceTemp;
 
             float ratio = (float)device.Viewport.Width / (float)device.Viewport.Height;
-            SetProjMatrix(MathHelper.PiOver4, nearDistanceDefault, farDistanceDefault);
+            SetProjMatrix(MathHelper.ToRadians(60.0f), nearDistanceDefault, farDistanceDefault);
 
             lookSensitivityFactor = sens;
             moveSpeedFactor = speed;

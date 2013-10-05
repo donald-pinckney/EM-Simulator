@@ -57,7 +57,7 @@ namespace EM_Sim
 
             EventInput.EventInput.Initialize(this.Window);
 
-            cam = new Camera(new Vector3(-5, 5, 5), -MathHelper.PiOver4, -MathHelper.PiOver4, 0.001f, 0.1f, device);
+            cam = new Camera(new Vector3(-8, 8, -8), -MathHelper.PiOver4*3, -0.2f, 0.001f, 0.1f, device);
 
             Arrow.InitEffect(device);
 
@@ -122,7 +122,7 @@ namespace EM_Sim
                 }
             }
 
-            if (e.KeyCode == Keys.PrintScreen)
+            if (e.KeyCode == Keys.PrintScreen || e.KeyCode == Keys.F12)
             {
                 device.SetRenderTarget(screenshotRender);
                 MainDraw();

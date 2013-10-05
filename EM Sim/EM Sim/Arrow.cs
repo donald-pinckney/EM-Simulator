@@ -17,8 +17,21 @@ namespace EM_Sim
         GraphicsDevice device;
         public static BasicEffect effect;
 
+        private Vector3 startPoint;
+        private Vector3 endPoint;
+
         public Vector3 color = new Vector3(1, 1, 1);
         public bool isColored = false;
+        private bool _hasArrowhead = false;
+        public bool hasArrowhead
+        {
+            get { return _hasArrowhead; }
+            set
+            {
+                _hasArrowhead = value;
+                MakeVertices(startPoint, endPoint);
+            }
+        }
 
         public static void InitEffect(GraphicsDevice device)
         {
@@ -30,6 +43,8 @@ namespace EM_Sim
         {
             device = d;
 
+            startPoint = start;
+            endPoint = end;
             MakeVertices(start, end);
         }
 
@@ -55,9 +70,28 @@ namespace EM_Sim
         private void MakeVertices(Vector3 startPoint, Vector3 endPoint)
         {
             // Create vertices for the line of the arrow
-            lineVerts = new VertexPositionColor[2];
-            lineVerts[0] = new VertexPositionColor(startPoint, new Color(100, 100, 100));
-            lineVerts[1] = new VertexPositionColor(endPoint, Color.White);
+            if (hasArrowhead)
+            {
+                lineVerts = new VertexPositionColor[6];
+                lineVerts[0] = new VertexPositionColor(startPoint, new Color(100, 100, 100));
+                lineVerts[1] = new VertexPositionColor(endPoint, Color.White);
+
+                Vector3 leftCross = Vector3.Normalize(Vector3.Cross(endPoint - startPoint, -Vector3.UnitY));
+                Vector3 rightCross = Vector3.Normalize(Vector3.Cross(endPoint - startPoint, Vector3.UnitY));
+                Vector3 smallerArrowshaft = Vector3.Normalize(startPoint - endPoint);
+                Vector3 leftArrowTipVector = smallerArrowshaft + leftCross;
+                Vector3 rightArrowTipVector = smallerArrowshaft + rightCross;
+                lineVerts[2] = new VertexPositionColor(endPoint, Color.White);
+                lineVerts[3] = new VertexPositionColor(endPoint + leftArrowTipVector, Color.White);
+                lineVerts[4] = new VertexPositionColor(endPoint, Color.White);
+                lineVerts[5] = new VertexPositionColor(endPoint + rightArrowTipVector, Color.White);
+            }
+            else
+            {
+                lineVerts = new VertexPositionColor[2];
+                lineVerts[0] = new VertexPositionColor(startPoint, new Color(100, 100, 100));
+                lineVerts[1] = new VertexPositionColor(endPoint, Color.White);
+            }
         }
 
 
@@ -72,15 +106,23 @@ namespace EM_Sim
             if (isColored)
             {
                 effect.VertexColorEnabled = false;
-                
             }
 
-
-            
-            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            if (hasArrowhead)
             {
-                pass.Apply();
-                device.DrawUserPrimitives(PrimitiveType.LineList, lineVerts, 0, 1);
+                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    device.DrawUserPrimitives(PrimitiveType.LineList, lineVerts, 0, 3);
+                }
+            }
+            else
+            {
+                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    device.DrawUserPrimitives(PrimitiveType.LineList, lineVerts, 0, 1);
+                }
             }
         }
     }
