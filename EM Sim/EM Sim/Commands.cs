@@ -140,10 +140,15 @@ namespace EM_Sim
                     sim.GetField().DeleteChargeWithID(id);
                     return "Deleted ID " + id;
                 }
-                sim.GetField().DeleteChargeWithID(selectedID);
-                string ret = "Deleted ID " + selectedID;
-                selectedID = -1;
-                return ret;
+
+                if (selectedID != -1)
+                {
+                    sim.GetField().DeleteChargeWithID(selectedID);
+                    string ret = "Deleted ID " + selectedID;
+                    selectedID = -1;
+                    return ret;
+                }
+                return "No currently selected charge";
             }
             else if (command == "toggle")
             {
