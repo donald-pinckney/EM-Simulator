@@ -8,14 +8,19 @@ namespace EM_Sim
 {
     class Commands
     {
-        const string helpText = "Commands: help add quit ls select delete toggle clear";
-        const string addHelpText = "add a point charge: add charge [positionVec] [chargeInMicroCoul]";
-        const string quitHelpText = "quit the program";
-        const string lsHelpText = "list the charges";
-        const string selectHelpText = "select a charge ID: select [ID]";
-        const string toggleHelpText = "toggle [vectors|lines]";
-        const string clearHelpText = "clears the console of text";
-        const string evalHelpText = "evaluates the value of the E or B field at a given position vecotor. eval [E|B] [positionVec]";
+        readonly static Dictionary<string, string> helpTexts = new Dictionary<string, string>
+        {
+            {"help", "Commands: help quit clear add ls select delete toggle eval gen"},
+            {"quit", "Quit the program"},
+            {"clear", "Clear the console of text"},
+            {"add", "Add a point charge: add charge [positionVec] [chargeInMicroCoul]"},
+            {"ls", "List all the charges in the world"},
+            {"select", "Select a charge with a given ID for editing or deletion: select [ID]"},
+            {"delete", "Delete a specified charge, or pass no ID argument to delete the selected charge: delete {ID}"},
+            {"toggle", "Toggle different visualizations on and off: toggle [vectors|lines]"},
+            {"eval", "Evaluate the value of the E or B field at a given position vecotor: eval [E|B] [positionVec]"},
+            {"gen", "Force the recalculation of either the E field or the E field lines: gen [vectors|lines]"}
+        };
 
         static int selectedID = -1;
 
@@ -26,25 +31,18 @@ namespace EM_Sim
             {
                 if (args.Length == 0)
                 {
-                    return helpText;
+                    return helpTexts["help"];
                 }
                 else
                 {
-                    if (args[0] == "add")
+                    string helpArg = args[0];
+                    if (helpTexts.ContainsKey(helpArg) == true)
                     {
-                        return addHelpText;
-                    }
-                    else if (args[0] == "quit")
-                    {
-                        return quitHelpText;
-                    }
-                    else if (args[0] == "clear")
-                    {
-                        return clearHelpText;
+                        return helpTexts[helpArg];
                     }
                     else
                     {
-                        return helpText;
+                        return helpTexts["help"];
                     }
         
                 }
@@ -63,12 +61,12 @@ namespace EM_Sim
             {
                 if (args.Length < 1)
                 {
-                    return addHelpText;
+                    return helpTexts["add"];
                 }
 
                 if (args[0] == "charge")
                 {
-                    if (args.Length != 3) return addHelpText;
+                    if (args.Length != 3) return helpTexts["add"];
 
                     string vectorString = args[1];
                     string chargeString = args[2];
@@ -80,15 +78,15 @@ namespace EM_Sim
                     sim.GetField().generateEFieldLines();
                     return "";
                 }
-                else if (args[0] == "circle")
+                else if (args[0] == "sphere")
                 {
-                    
                     float radius = 20;
                     
                     int numLat = 20;
                     for (int i = 0; i < numLat; i++)
                     {
                         double lat = -MathHelper.PiOver2 + Math.PI * ((double)i / (double)(numLat - 1));
+                        float y = radius * (float)Math.Sin(lat);
 
                         double circumference = 2 * Math.PI * radius * (float)Math.Cos(lat);
                         int numLon = (int)(40 * (circumference / (40 * Math.PI)));
@@ -98,13 +96,14 @@ namespace EM_Sim
                             
                             float x = radius * (float)Math.Cos(lat) * (float)Math.Cos(lon);
                             float z = radius * (float)Math.Cos(lat) * (float)Math.Sin(lon);
-                            float y = radius * (float)Math.Sin(lat);
 
                             Vector3 pos = new Vector3(x, y, z);
                             float charge = 0.1f;
                             sim.AddCharge(pos, charge);
                         }
                     }
+                    sim.GetField().generateArrows();
+                    sim.GetField().generateEFieldLines();
                     return "";
                 }
                 else
@@ -125,7 +124,7 @@ namespace EM_Sim
             {
                 if (args.Length != 1)
                 {
-                    return selectHelpText;
+                    return helpTexts["select"];
                 }
                 else
                 {
@@ -148,7 +147,7 @@ namespace EM_Sim
             }
             else if (command == "toggle")
             {
-                if (args.Length != 1) return toggleHelpText;
+                if (args.Length != 1) return helpTexts["toggle"];
 
                 if (args[0] == "vectors")
                 {
@@ -183,7 +182,7 @@ namespace EM_Sim
             }
             else if (command == "gen")
             {
-                if (args.Length != 1) return "Wrong number of arguments for gen";
+                if (args.Length != 1) return helpTexts["gen"];
 
                 if (args[0] == "vectors")
                 {
@@ -204,7 +203,7 @@ namespace EM_Sim
             {
                 if (args.Length < 2)
                 {
-                    return evalHelpText;
+                    return helpTexts["eval"];
                 }
                 if (args[0] == "E")
                 {

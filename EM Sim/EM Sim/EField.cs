@@ -99,24 +99,21 @@ namespace EM_Sim
 
             int numLinesPerCharge = 25;
 
-
             List<VertexPositionColor> tempVerts = new List<VertexPositionColor>();
 
             Random random = new Random();
             int lineSegmentsPerLine = 65535 / (charges.Count * numLinesPerCharge);
+            float minLon = 0;
+            float maxLon = (float)Math.PI;
+
+            float minLat = (float)-Math.PI;
+            float maxLat = (float)Math.PI;
+
+            int numLoops = (int)Math.Sqrt(numLinesPerCharge);
             for (int i = 0; i < charges.Count; i++)
             {
                 // Non-random line starting algorithm
                 PointCharge charge = charges[i];
-
-                float minLon = 0;
-                float maxLon = (float)Math.PI;
-
-                float minLat = (float)-Math.PI;
-                float maxLat = (float)Math.PI;
-
-                int numLoops = (int)Math.Sqrt(numLinesPerCharge);
-
                 for (int lonIndex = 0; lonIndex < numLoops; lonIndex++)
                 {
                     float lon = MathHelper.Lerp(minLon, maxLon, (float)lonIndex / (float)numLoops);

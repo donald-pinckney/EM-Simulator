@@ -21,7 +21,7 @@ namespace EM_Sim
         EMSim sim;
         RectangleOverlay overlay;
 
-        List<string> lines = new List<string>();
+        private List<string> lines = new List<string>();
         public EMConsole(GraphicsDevice d, ContentManager content, EMSim sim)
         {
             device = d;
