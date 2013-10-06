@@ -16,7 +16,7 @@ to achieve more cross-platformness.
 ##Quick Setup
 Express setup:
 
-1. Download the latest build under releases
+1. Download the latest build under [releases.](https://github.com/donald-pinckney/EM-Simulator/releases)
 2. Unzip, and run *setup.exe*.  
 3. The installer will automatically install the .NET Framework 4 and XNA, if necessary.
 3. The installer will then automatically start EM Simulator.
