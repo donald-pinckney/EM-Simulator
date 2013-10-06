@@ -101,6 +101,29 @@ namespace EM_Sim
             return Commands.EvaluateCommand(command, args, sim, this);
         }
 
+        public void RunScript(string scriptName)
+        {
+            try
+            {
+                string[] script = System.IO.File.ReadAllLines("Content\\" + scriptName + ".ems");
+                ExecuteScriptLines(script);
+
+            }
+            catch (Exception e)
+            {
+                Log("No script named \"" + scriptName + "\" found.");
+            }
+        }
+
+        private void ExecuteScriptLines(string[] lines)
+        {
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string command = lines[i];
+                EvaluateInput(command);
+            }
+        }
+
         const int maxLineWidth = 70;
         public void Draw()
         {

@@ -10,16 +10,17 @@ namespace EM_Sim
     {
         readonly static Dictionary<string, string> helpTexts = new Dictionary<string, string>
         {
-            {"help", "Commands: help quit clear add ls select delete toggle eval gen"},
+            {"help", "Commands: help quit clear add ls select delete toggle eval gen run"},
             {"quit", "Quit the program"},
             {"clear", "Clear the console of text"},
-            {"add", "Add a point charge: add charge [positionVec] [chargeInMicroCoul]"},
+            {"add", "Add a point charge: add charge [positionVec] [chargeInMicroCoul]    OR, Add a sphere of point charges: add sphere [centerPosVec] [radius] [chargeInMicroCoul]"},
             {"ls", "List all the charges in the world"},
             {"select", "Select a charge with a given ID for editing or deletion: select [ID]"},
             {"delete", "Delete a specified charge, or pass no ID argument to delete the selected charge: delete {ID}"},
             {"toggle", "Toggle different visualizations on and off: toggle [vectors|lines]"},
             {"eval", "Evaluate the value of the E or B field at a given position vecotor: eval [E|B] [positionVec]"},
-            {"gen", "Force the recalculation of either the E field or the E field lines: gen [vectors|lines]"}
+            {"gen", "Force the recalculation of either the E field or the E field lines: gen [vectors|lines]"},
+            {"run", "Runs a script with a given name in the Content directory. Specify the script without a file extension: run [script]"}
         };
 
         static int selectedID = -1;
@@ -80,13 +81,17 @@ namespace EM_Sim
                 }
                 else if (args[0] == "sphere")
                 {
-                    float radius = 20;
+                    if (args.Length != 4) return helpTexts["add"];
+
+                    Vector3 center = ParseVector3(args[1]);
+                    float radius = float.Parse(args[2]);
+                    float charge = float.Parse(args[3]);
                     
                     int numLat = 20;
                     for (int i = 0; i < numLat; i++)
                     {
                         double lat = -MathHelper.PiOver2 + Math.PI * ((double)i / (double)(numLat - 1));
-                        float y = radius * (float)Math.Sin(lat);
+                        float y = radius * (float)Math.Sin(lat) + center.Y;
 
                         double circumference = 2 * Math.PI * radius * (float)Math.Cos(lat);
                         int numLon = (int)(40 * (circumference / (40 * Math.PI)));
@@ -94,11 +99,10 @@ namespace EM_Sim
                         {
                             double lon = MathHelper.TwoPi * ((double)n / (double)(numLon));
                             
-                            float x = radius * (float)Math.Cos(lat) * (float)Math.Cos(lon);
-                            float z = radius * (float)Math.Cos(lat) * (float)Math.Sin(lon);
+                            float x = radius * (float)Math.Cos(lat) * (float)Math.Cos(lon) + center.X;
+                            float z = radius * (float)Math.Cos(lat) * (float)Math.Sin(lon) + center.Z;
 
                             Vector3 pos = new Vector3(x, y, z);
-                            float charge = 0.1f;
                             sim.AddCharge(pos, charge);
                         }
                     }
@@ -220,6 +224,16 @@ namespace EM_Sim
                 {
                     return "";
                 }
+            }
+            else if (command == "run")
+            {
+                if (args.Length != 1)
+                {
+                    return helpTexts["run"];
+                }
+
+                console.RunScript(args[0]);
+                return "";
             }
             else
             {

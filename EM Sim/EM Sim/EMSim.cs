@@ -74,7 +74,6 @@ namespace EM_Sim
 
             screenshotRender = new RenderTarget2D(device, windowedWidth, windowedHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
             console.Log("Welcome to EM Simulator!  To get started, move your position in space with WASD, and rotate camera with mouse.  Run help for a list of available commands.");
-
         }
 
         public EField GetField()
