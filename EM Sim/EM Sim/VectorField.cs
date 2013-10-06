@@ -67,7 +67,7 @@ namespace EM_Sim
 
                         Vector3 pos = new Vector3(xCoord, yCoord, zCoord);
                         Vector3 vec = r(pos) * 0.2f;
-                        if (vec.Length() > 50) continue;
+                        if (vec.Length() > 300) continue;
                         Arrow arrow = Arrow.ArrowWithStartAndVector(device, pos, vec);
                         arrows.Add(arrow);
                     }

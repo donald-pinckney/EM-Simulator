@@ -145,6 +145,7 @@ namespace EM_Sim
             }
             catch
             {
+                Console.WriteLine("Error with expression... returning original!");
                 return expr;
             }
         }
@@ -230,7 +231,7 @@ namespace EM_Sim
                 }
                 else
                 {
-                    EvaluateInput(input);
+                    EvaluateInput(EvaluateVariableExpression(input, variables));
                 }
             }
         }

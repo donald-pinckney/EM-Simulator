@@ -10,7 +10,7 @@ namespace EM_Sim
     {
         readonly static Dictionary<string, string> helpTexts = new Dictionary<string, string>
         {
-            {"help", "Commands: help quit clear add ls select delete toggle eval gen run"},
+            {"help", "Commands: help quit clear add ls select delete toggle eval gen autogen run"},
             {"quit", "Quit the program"},
             {"clear", "Clear the console of text"},
             {"add", "Add a point charge: add charge [positionVec] [chargeInMicroCoul]    OR, Add a sphere of point charges: add sphere [centerPosVec] [radius] [chargeInMicroCoul]"},
@@ -20,10 +20,12 @@ namespace EM_Sim
             {"toggle", "Toggle different visualizations on and off: toggle [vectors|lines]"},
             {"eval", "Evaluate the value of the E or B field at a given position vecotor: eval [E|B] [positionVec]"},
             {"gen", "Force the recalculation of either the E field or the E field lines: gen [vectors|lines]"},
+            {"autogen", "Turn on or off automatic generation of E field and E field lines when adding charges. Defaults to on: autogen [on|off]"},
             {"run", "Runs a script with a given name in the Content directory. Specify the script without a file extension: run [script]"}
         };
 
         static int selectedID = -1;
+        static bool shouldAutogen = true;
 
         // Massive method to parse all possible commands
         public static string EvaluateCommand(string command, string[] args, EMSim sim, EMConsole console)
@@ -75,8 +77,12 @@ namespace EM_Sim
                     Vector3 pos = ParseVector3(vectorString);
                     float charge = float.Parse(chargeString);
                     sim.AddCharge(pos, charge);
-                    sim.GetField().generateArrows();
-                    sim.GetField().generateEFieldLines();
+                    if (shouldAutogen)
+                    {
+                        sim.GetField().generateArrows();
+                        sim.GetField().generateEFieldLines();
+                    }
+                    console.Log("Adding charge: " + pos);
                     return "";
                 }
                 else if (args[0] == "sphere")
@@ -207,6 +213,19 @@ namespace EM_Sim
                 {
                     return "Unknown argument for gen";
                 }
+            }
+            else if (command == "autogen")
+            {
+                if (args.Length != 1) return helpTexts["autogen"];
+                if (args[0] == "on")
+                {
+                    shouldAutogen = true;
+                }
+                else
+                {
+                    shouldAutogen = false;
+                }
+                return "";
             }
             else if (command == "eval")
             {

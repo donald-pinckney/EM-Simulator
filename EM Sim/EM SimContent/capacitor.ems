@@ -1,4 +1,17 @@
-set x 0
-echo $x
-set x $x+1
-if $x<10 goto 2
+autogen off
+set x -10
+set z -10
+add charge $x,20,$z 0.05
+set z $z+4
+if $z<=10 goto 4
+set x $x+4
+if $x<=10 goto 3
+set x -10
+set z -10
+add charge $x,-20,$z -0.05
+set z $z+4
+if $z<=10 goto 11
+set x $x+4
+if $x<=10 goto 10
+autogen on
+gen vectors
