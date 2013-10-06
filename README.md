@@ -65,6 +65,7 @@ add charge 10,0,0 0.2
 toggle lines
 toggle vectors
 ```
+![Dipole Screenshot](https://raw.github.com/donald-pinckney/EM-Simulator/screenshots/screenshots/1.png "Dipole Screenshot")
 
 **Add a third charge**
 ```
@@ -76,6 +77,8 @@ add charge -5,20,25 0.4
 toggle vectors
 toggle lines
 ```
+
+![Vector Field Screenshot](https://raw.github.com/donald-pinckney/EM-Simulator/screenshots/screenshots/0.png "Vector Field Screenshot")
 
 ##Console Command Documentation
 
