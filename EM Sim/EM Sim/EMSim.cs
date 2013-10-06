@@ -128,18 +128,19 @@ namespace EM_Sim
                 MainDraw();
                 device.SetRenderTarget(null);
 
-                if(!Directory.Exists("C:\\Users\\Donald\\Desktop\\EMShots"))
+                string baseDir = "C:\\Users\\" + Environment.UserName + "\\Desktop\\EMShots";
+                if(!Directory.Exists(baseDir))
                 {
                     Console.WriteLine("Making dir");
-                    Directory.CreateDirectory("C:\\Users\\Donald\\Desktop\\EMShots");
+                    Directory.CreateDirectory(baseDir);
                 }
 
                 int x = 0;
-                string path = "C:\\Users\\Donald\\Desktop\\EMShots\\" + x + ".png"; 
+                string path = baseDir + "\\" + x + ".png"; 
                 while(File.Exists(path))
                 {
                     x++;
-                    path = "C:\\Users\\Donald\\Desktop\\EMShots\\" + x + ".png";
+                    path = baseDir + "\\" + x + ".png";
                 }
                 FileStream fs = new FileStream(path, FileMode.CreateNew);
                 screenshotRender.SaveAsPng(fs, screenshotRender.Width, screenshotRender.Height);
