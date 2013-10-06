@@ -166,7 +166,7 @@ namespace EM_Sim
                 currentVector = newVector;
             }
 
-            Console.WriteLine("\n\n");
+            //Console.WriteLine("\n\n");
 
             return tempLine.ToArray();
         }

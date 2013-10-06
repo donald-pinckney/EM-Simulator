@@ -229,7 +229,8 @@ namespace EM_Sim
             {
                 if (args.Length != 1)
                 {
-                    return helpTexts["run"];
+                    console.LogAvailableScripts();
+                    return "";
                 }
 
                 console.RunScript(args[0]);

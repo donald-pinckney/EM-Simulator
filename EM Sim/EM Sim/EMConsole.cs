@@ -61,7 +61,7 @@ namespace EM_Sim
 
             if (tabToggle)
             {
-                Console.WriteLine((int)e.Character);
+                //Console.WriteLine((int)e.Character);
                 if (e.Character >= 32 && e.Character <= 126) // If the key is a printable ascii character, add it to the current input line
                 {
                     inputText += e.Character;
@@ -101,6 +101,19 @@ namespace EM_Sim
             return Commands.EvaluateCommand(command, args, sim, this);
         }
 
+        public void LogAvailableScripts()
+        {
+            Log("Available scripts:");
+            string[] scripts = System.IO.Directory.GetFiles("Content", "*.ems");
+            string scriptNames = "";
+            foreach (string script in scripts)
+            {
+                string scriptName = script.Replace("Content\\", "");
+                scriptName = scriptName.Replace(".ems", "");
+                scriptNames += scriptName + " ";
+            }
+            Log(scriptNames);
+        }
         public void RunScript(string scriptName)
         {
             try
