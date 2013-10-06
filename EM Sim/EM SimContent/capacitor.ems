@@ -1,2 +1,4 @@
-add charge 0,20,0 0.1
-add charge 0,-20,0 -0.1
+set x 0
+echo $x
+set x $x+1
+if $x<10 goto 2

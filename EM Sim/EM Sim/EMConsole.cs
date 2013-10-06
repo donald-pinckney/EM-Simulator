@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using EventInput;
+using NCalc;
 
 namespace EM_Sim
 {
@@ -122,18 +123,115 @@ namespace EM_Sim
                 ExecuteScriptLines(script);
 
             }
-            catch (Exception e)
+            catch
             {
                 Log("No script named \"" + scriptName + "\" found.");
             }
         }
 
+        private string EvaluateVariableExpression(string expr, Dictionary<string, string> vars)
+        {
+            foreach (string varName in vars.Keys)
+            {
+                string val = vars[varName];
+                string literalVar = "$" + varName;
+                expr = expr.Replace(literalVar, val);
+            }
+            Console.WriteLine("Expression: " + expr);
+            Expression e = new Expression(expr);
+            try
+            {
+                return e.Evaluate().ToString();
+            }
+            catch
+            {
+                return expr;
+            }
+        }
         private void ExecuteScriptLines(string[] lines)
         {
+            Dictionary<string, string> variables = new Dictionary<string, string>();
+
             for (int i = 0; i < lines.Length; i++)
             {
-                string command = lines[i];
-                EvaluateInput(command);
+                string input = lines[i];
+
+                string[] words = input.Split(' ');
+                string command = words[0];
+                string[] args = new string[words.Length-1];
+                for(int j = 1; j < words.Length; j++)
+                {
+                    args[j-1] = words[j];
+                }
+
+                if (command == "if")
+                {
+                    if (args.Length < 2)
+                    {
+                        Log("Invalid if command");
+                        continue;
+                    }
+
+                    string condition = args[0];
+                    string result = EvaluateVariableExpression(condition, variables);
+                    if (result == "False")
+                    {
+                        continue;
+                    }
+                    else if (result != "True")
+                    {
+                        Log("Invalid if condition");
+                    }
+
+                    // Set the stuff after the condition to the new command to evaluate
+                    command = args[1];
+                    string[] newArgs = new string[args.Length - 2];
+                    for (int j = 2; j < args.Length; j++)
+                    {
+                        newArgs[j - 2] = args[j];
+                    }
+                    args = newArgs;
+                }
+
+                if (command == "set")
+                {
+                    if (args.Length != 2)
+                    {
+                        Log("Invalid set command");
+                        continue;
+                    }
+
+                    string varName = args[0];
+                    string varVal = args[1];
+                    variables[varName] = EvaluateVariableExpression(varVal, variables);
+                }
+                else if (command == "echo")
+                {
+                    if (args.Length != 1)
+                    {
+                        Log("Invalid echo command");
+                        continue;
+                    }
+
+                    string result = EvaluateVariableExpression(args[0], variables);
+                    Console.WriteLine("Result: " + result);
+                    Log(result);
+                }
+                else if (command == "goto")
+                {
+                    if (args.Length != 1)
+                    {
+                        Log("Invalid goto command");
+                        continue;
+                    }
+                    int lineNum = int.Parse(args[0]) - 1;
+                    i = lineNum - 1;
+                    continue;
+                }
+                else
+                {
+                    EvaluateInput(input);
+                }
             }
         }
 
