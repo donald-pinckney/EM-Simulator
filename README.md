@@ -1,7 +1,7 @@
 #EM Simulator
 
-EM Simulator is a 3D simulation and visualizaiton software written in C# and XNA for electric (and soon, magnetic) fields.
-Point charges can be added and removed from the 3D world, while viewing the electric vector field and electric field lines in 3D.
+EM Simulator is a 3D simulation and visualization software written in C# and XNA for [electric](http://en.wikipedia.org/wiki/Electric_field) (and soon, magnetic) fields.
+The simulator allows you to place point charges in a 3D world and view the resulting vector field and field lines.
 
 ##System Requirements
 
@@ -10,8 +10,8 @@ EM Simulator uses [XNA](http://en.wikipedia.org/wiki/Microsoft_XNA), and thus ha
 1. Windows XP or newer
 2. DirectX 9 or newer compatible graphics card (Intel integrated graphics *may* suffice - not tested)
 
-In the future I plan to either re-write EM Simulator in OpenGL or try to use [Mono](http://www.mono-project.com/Main_Page)
-to achieve more cross-platformness.
+In the future I plan to either rewrite EM Simulator in OpenGL or utilize [Mono](http://www.mono-project.com/Main_Page)
+to achieve greater platform compatibility.
 
 ##Quick Setup
 Express setup:
