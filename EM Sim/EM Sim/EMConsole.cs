@@ -138,20 +138,28 @@ namespace EM_Sim
                 expr = expr.Replace(literalVar, val);
             }
             Console.WriteLine("Expression: " + expr);
-            Expression e = new Expression(expr);
-            try
+            if (expr.Contains("+") || expr.Contains("-") || expr.Contains("*") || expr.Contains("/") || expr.Contains("=") || expr.Contains("<") || expr.Contains(">"))
             {
-                return e.Evaluate().ToString();
+                Expression e = new Expression(expr);
+                try
+                {
+                    return e.Evaluate().ToString();
+                }
+                catch
+                {
+                    Console.WriteLine("Error with expression... returning original!");
+                    return expr;
+                }
             }
-            catch
+            else
             {
-                Console.WriteLine("Error with expression... returning original!");
                 return expr;
             }
         }
         private void ExecuteScriptLines(string[] lines)
         {
             Dictionary<string, string> variables = new Dictionary<string, string>();
+            Dictionary<string, int> labels = new Dictionary<string,int>();
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -171,6 +179,31 @@ namespace EM_Sim
                 for(int j = 1; j < words.Length; j++)
                 {
                     args[j-1] = words[j];
+                }
+
+
+
+                // Process input for goto labels
+                if (command == "label")
+                {
+                    if (args.Length < 1)
+                    {
+                        Log("Invalid label command");
+                        continue;
+                    }
+
+                    string labelName = EvaluateVariableExpression(args[0], variables);
+                    labels[labelName] = i;
+
+                    command = args[1];
+                    input = command;
+                    string[] newArgs = new string[args.Length - 2];
+                    for (int j = 2; j < args.Length; j++)
+                    {
+                        newArgs[j - 2] = args[j];
+                        input += " " + args[j];
+                    }
+                    args = newArgs;
                 }
 
                 if (command == "if")
@@ -194,10 +227,12 @@ namespace EM_Sim
 
                     // Set the stuff after the condition to the new command to evaluate
                     command = args[1];
+                    input = command;
                     string[] newArgs = new string[args.Length - 2];
                     for (int j = 2; j < args.Length; j++)
                     {
                         newArgs[j - 2] = args[j];
+                        input += " " + args[j];
                     }
                     args = newArgs;
                 }
@@ -233,12 +268,28 @@ namespace EM_Sim
                         Log("Invalid goto command");
                         continue;
                     }
-                    int lineNum = int.Parse(args[0]) - 1;
-                    i = lineNum - 1;
+
+                    int lineNumber = 0;
+                    bool isLineNumber = int.TryParse(args[0], out lineNumber);
+                    
+                    if (isLineNumber)
+                    {
+                        lineNumber--;
+                    }
+                    else
+                    {
+                        lineNumber = labels[args[0]];
+                    }
+
+                    i = lineNumber - 1;
                     continue;
                 }
                 else
                 {
+                    if (command.Length == 0 || command.Contains("#"))
+                    {
+                        continue;
+                    }
                     EvaluateInput(EvaluateVariableExpression(input, variables));
                 }
             }

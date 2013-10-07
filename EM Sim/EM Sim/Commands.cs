@@ -82,7 +82,7 @@ namespace EM_Sim
                         sim.GetField().generateArrows();
                         sim.GetField().generateEFieldLines();
                     }
-                    console.Log("Adding charge: " + pos);
+                    //console.Log("Adding charge: " + pos);
                     return "";
                 }
                 else if (args[0] == "sphere")
