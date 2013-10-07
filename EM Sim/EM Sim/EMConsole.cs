@@ -156,9 +156,17 @@ namespace EM_Sim
             for (int i = 0; i < lines.Length; i++)
             {
                 string input = lines[i];
+                if (input.Length == 0) // Allows whitespace in script
+                {
+                    continue;
+                }
 
                 string[] words = input.Split(' ');
                 string command = words[0];
+                if (command.Contains("#")) // Allows for single-line comments in script
+                {
+                    continue;
+                }
                 string[] args = new string[words.Length-1];
                 for(int j = 1; j < words.Length; j++)
                 {

@@ -13,5 +13,9 @@ set z $z+4
 if $z<=10 goto 11
 set x $x+4
 if $x<=10 goto 10
+
+
 autogen on
+# Turn vectors back on
+#now
 gen vectors
