@@ -112,8 +112,6 @@ namespace EM_Sim
                             sim.AddCharge(pos, charge);
                         }
                     }
-                    sim.GetField().generateArrows();
-                    sim.GetField().generateEFieldLines();
                     return "";
                 }
                 else
