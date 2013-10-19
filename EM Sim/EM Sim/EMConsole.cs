@@ -44,7 +44,7 @@ namespace EM_Sim
             int fullWidth = sim.fullscreenWidth;
             int fullHeight = sim.fullscreenHeight;
 
-            overlay = new RectangleOverlay(new Rectangle(10, device.Viewport.Height - 200, device.Viewport.Width - 20, 200), new Rectangle(10, fullHeight - 200, fullWidth - 20, 200), new Color(0.2f, 0.2f, 0.2f, 0.2f), device);
+            overlay = new RectangleOverlay(new Rectangle(10, device.Viewport.Height - 200, device.Viewport.Width - 20, 200), new Rectangle(10, fullHeight - 200, fullWidth - 20, 200), new Color(0.1f, 0.1f, 0.1f, 0.6f), device);
             overlay.LoadContent();
 
 
@@ -62,15 +62,24 @@ def print(*args, **kwargs):
 
 ", pythonScope);
             
+            pythonEngine.Execute(@"def help(command = None):
+    if(command is None):
+        helpbackup()
+    else:
+        helpcommand(command)
+
+", pythonScope);
 
             pythonScope.logf = new Action<dynamic, dynamic>(Logf);
             pythonScope.log = new Action<dynamic>(Log);
-            pythonScope.help = new Action(Commands.Help);
-            pythonScope.helpc = new Action<string>(Commands.Help);
+            pythonScope.helpbackup = new Action(Commands.Help);
+            pythonScope.helpcommand = new Action<string>(Commands.Help);
             pythonScope.quit = new Action(Commands.Quit);
             pythonScope.clear = new Action(Commands.Clear);
             pythonScope.addCharge = new Action<float, float, float, float>(Commands.AddCharge);
             pythonScope.addSphere = new Action<float, float, float, float, float>(Commands.AddSphere);
+            pythonScope.modifyCharge = new Action<string, float>(Commands.ModifyCharge);
+            pythonScope.modifyChargeID = new Action<int, string, float>(Commands.ModifyChargeID);
             pythonScope.ls = new Action(Commands.Ls);
             pythonScope.select = new Action<int>(Commands.Select);
             pythonScope.deleteID = new Action<int>(Commands.Delete);

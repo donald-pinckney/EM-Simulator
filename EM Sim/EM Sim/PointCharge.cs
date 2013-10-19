@@ -28,13 +28,13 @@ namespace EM_Sim
         public float radius;
         public Vector3 center;
 
-        public PointCharge(GraphicsDevice d, float radius, Vector3 c, float chargeInMicroCoulombs, int id)
+        public PointCharge(GraphicsDevice d, Vector3 c, float chargeInMicroCoulombs, int id)
         {
             //chargeInMicroCoulombs *= 1000000f;
 
             device = d;
 
-            this.radius = radius;
+            this.radius = 1.0f;
             center = c;
             CreateSphere(radius, center);
 

@@ -33,6 +33,19 @@ namespace EM_Sim
             return charges;
         }
 
+        public PointCharge GetChargeWithID(int id)
+        {
+            for (int i = 0; i < charges.Count; i++)
+            {
+                PointCharge c = charges[i];
+                if (c.id == id)
+                {
+                    return c;
+                }
+            }
+            return null;
+        }
+
         public void DeleteChargeWithID(int id)
         {
             for (int i = 0; i < charges.Count; i++)
@@ -48,7 +61,7 @@ namespace EM_Sim
             }
         }
 
-        private void AddCharge(PointCharge charge)
+        public void AddCharge(PointCharge charge)
         {
             idCounter++;
             charges.Add(charge);
@@ -85,7 +98,7 @@ namespace EM_Sim
 
         public void AddCharge(Vector3 pos, float chargeInMicroCoulombs)
         {
-            PointCharge pointCharge = new PointCharge(this.device, 1.0f, pos, chargeInMicroCoulombs, idCounter);
+            PointCharge pointCharge = new PointCharge(this.device, pos, chargeInMicroCoulombs, idCounter);
             AddCharge(pointCharge);
         }
 

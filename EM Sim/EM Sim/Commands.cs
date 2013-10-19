@@ -10,18 +10,26 @@ namespace EM_Sim
     {
         readonly static Dictionary<string, string> helpTexts = new Dictionary<string, string>
         {
-            {"help", "Commands: help quit clear add ls select delete toggle eval gen autogen run"},
-            {"quit", "Quit the program"},
-            {"clear", "Clear the console of text"},
-            {"add", "Add a point charge: add charge [positionVec] [chargeInMicroCoul]    OR, Add a sphere of point charges: add sphere [centerPosVec] [radius] [chargeInMicroCoul]"},
-            {"ls", "List all the charges in the world"},
-            {"select", "Select a charge with a given ID for editing or deletion: select [ID]"},
-            {"delete", "Delete a specified charge, or pass no ID argument to delete the selected charge: delete {ID}"},
-            {"toggle", "Toggle different visualizations on and off: toggle [vectors|lines]"},
-            {"eval", "Evaluate the value of the E or B field at a given position vecotor: eval [E|B] [positionVec]"},
-            {"gen", "Force the recalculation of either the E field or the E field lines: gen [vectors|lines]"},
-            {"autogen", "Turn on or off automatic generation of E field and E field lines when adding charges. Defaults to on: autogen [on|off]"},
-            {"run", "Runs a script with a given name in the Content directory. Specify the script without a file extension: run [script]"}
+            {"help", "Commands: help() helpc(command) quit() clear() addCharge(x,y,z,\u00b5C) addSphere(x,y,z,radius,\u00b5C) modifyCharge(property, value) modifyChargeID(id, propery, value) ls() select(id) delete() deleteID(id) toggleVectors() toggleLines() evalE(x,y,z) genVectors() genLines() autogen(isOn) lsScripts() run(script)"},
+            {"helpc", "helpc(command): Display help for a specific command. Ex: helpc(\"addCharge\")"},
+            {"quit", "quit(): Quit the program."},
+            {"clear", "clear(): Clear the console of text."},
+            {"addCharge", "addCharge(x,y,z,\u00b5C): Add a point charge. Ex: addCharge(3,0,0,0.2)"},
+            {"addSphere", "addSphere(x,y,z,radius,\u00b5C): Add a charged sphere. Ex: addSphere(0,2,0,10,0.1)"},
+            {"modifyCharge", "modifyCharge(property, value): Modifies a property (\"x\", \"y\", \"z\", \"charge\")  for the currently selected charge (see help(\"select\")). Ex: modifyCharge(\"y\", 5)"},
+            {"modifyChargeID", "modifyCharge(property, value): Modifies a property (\"x\", \"y\", \"z\", \"charge\")  for a charge with a given ID. Ex: modifyChargeID(2, \"y\", 5)"},
+            {"ls", "ls(): List all the charges in the world."},
+            {"select", "select(id): Select a charge with a given ID for editing or deletion. Ex: select(2)"},
+            {"delete", "delete(): Delete the currently selected charge (see help(\"select\"))."},
+            {"deleteID", "deleteID(id): Delete a charge with a given ID. Ex: deleteID(2)"},
+            {"toggleVectors", "toggleVectors(): Toggle visualization of the E (vector) field on and off."},
+            {"toggleLines", "toggleLines(): Toggle visualization of the E field lines on and off."},
+            {"evalE", "evalE(x,y,z): Evaluate the value of the E field at a given position vecotor."},
+            {"genVectors", "genVectors(): Force the recalculation of the E (vector) field."},
+            {"genLines", "genLines(): Force the recalculation of the E field lines."},
+            {"autogen", "autogen(isOn): Turn on or off automatic generation of E field and E field lines when adding charges. Defaults to True."},
+            {"lsScripts", "lsScripts(): List the python scripts available in the Content directory"},
+            {"run", "run(script): Run a script with a given name in the Content. Specify the script without a file extension. Ex: run(\"capacitor\")"}
         };
 
         static int selectedID = -1;
@@ -62,6 +70,59 @@ namespace EM_Sim
         {
             Vector3 pos = new Vector3(x, y, z);
             sim.AddCharge(pos, charge);
+            if (shouldAutogen)
+            {
+                sim.GetField().generateArrows();
+                sim.GetField().generateEFieldLines();
+            }
+        }
+
+        public static void ModifyCharge(string property, float value)
+        {
+            ModifyChargeID(selectedID, property, value);
+        }
+
+        public static void ModifyChargeID(int id, string property, float value)
+        {
+            PointCharge oldC = sim.GetField().GetChargeWithID(id);
+
+            if (oldC == null)
+            {
+                console.Log("Charge with ID " + id + " not defined");
+                return;
+            }
+
+            float x = oldC.center.X;
+            float y = oldC.center.Y;
+            float z = oldC.center.Z;
+            float charge = oldC.charge * 1000000;
+
+            if (property == "x")
+            {
+                x = value;
+            }
+            else if (property == "y")
+            {
+                y = value;
+            }
+            else if (property == "z")
+            {
+                z = value;
+            }
+            else if (property == "charge")
+            {
+                charge = value;
+            }
+            else
+            {
+                console.Log("Invalid property \"" + value + "\"");
+                return;
+            }
+
+            PointCharge c = new PointCharge(sim.GraphicsDevice, new Vector3(x, y, z), charge, id);
+            sim.GetField().DeleteChargeWithID(id);
+            sim.GetField().AddCharge(c);
+
             if (shouldAutogen)
             {
                 sim.GetField().generateArrows();
