@@ -27,6 +27,21 @@ namespace EM_Sim
         static int selectedID = -1;
         static bool shouldAutogen = true;
 
+
+        public static EMConsole console;
+
+        public static void Help(string arg0)
+        {
+            if (arg0 != null && helpTexts.Keys.Contains(arg0))
+            {
+                console.Log(helpTexts[arg0]);
+            }
+            else
+            {
+                console.Log(helpTexts["help"]);
+            }
+        }
+
         // Massive method to parse all possible commands
         public static string EvaluateCommand(string command, string[] args, EMSim sim, EMConsole console)
         {

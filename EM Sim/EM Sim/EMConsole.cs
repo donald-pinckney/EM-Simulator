@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -10,7 +11,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using EventInput;
-using NCalc;
+using IronPython.Hosting;
+using Microsoft.Scripting.Hosting;
+using Microsoft.CSharp;
+using System.Collections.Generic;
 
 namespace EM_Sim
 {
@@ -21,6 +25,9 @@ namespace EM_Sim
         SpriteBatch spriteBatch;
         EMSim sim;
         RectangleOverlay overlay;
+
+        ScriptEngine pythonEngine;
+        dynamic pythonScope;
 
         private List<string> lines = new List<string>();
         public EMConsole(GraphicsDevice d, ContentManager content, EMSim sim)
@@ -37,8 +44,33 @@ namespace EM_Sim
 
             overlay = new RectangleOverlay(new Rectangle(10, device.Viewport.Height - 200, device.Viewport.Width - 20, 200), new Rectangle(10, fullHeight - 200, fullWidth - 20, 200), new Color(0.2f, 0.2f, 0.2f, 0.2f), device);
             overlay.LoadContent();
+
+
+            // TEST IRON PYTHON!
+            Commands.console = this;
+            pythonEngine = Python.CreateEngine();
+            var paths = pythonEngine.GetSearchPaths();
+            paths.Add(@"C:\Program Files (x86)\IronPython 2.7\Lib");
+            pythonEngine.SetSearchPaths(paths);
+            pythonScope = pythonEngine.CreateScope();
+            pythonEngine.Execute(@"from __future__ import print_function
+def print(*args, **kwargs):
+    Log(args, kwargs)
+
+", pythonScope);
+            
+
+            pythonScope.Log = new Action<dynamic, dynamic>(Log);
+            pythonScope.Help = new Action<string>(Commands.Help);
+            pythonScope.quit = new Action(null); // TODO: Link commands
+
+            pythonEngine.Execute(@"print(""hello"")", pythonScope);
         }
 
+        public void Log(dynamic arg0, dynamic arg1)
+        {
+            Log(arg0[0].ToString());
+        }
         public void Log(String line)
         {
             lines.Add(line);
@@ -69,8 +101,7 @@ namespace EM_Sim
                 }
                 else if (e.Character == 13) // If the enter key was pressed, evaluate current line, and reset the input
                 {
-                    string output = EvaluateInput(inputText);
-                    Log(output);    
+                    EvaluateInput(inputText);   
                     inputText = "";
                 }
                 else if (e.Character == 8) // If backspace was pressed, delete 1 character from the input
@@ -87,19 +118,9 @@ namespace EM_Sim
         
 
         // This method will evaluate a line of text entered from the console
-        private string EvaluateInput(string input)
+        private void EvaluateInput(string input)
         {
-            string[] words = input.Split(' ');
-            if (words.Length < 1) return "";
-
-            string command = words[0];
-            string[] args = new string[words.Length-1];
-            for(int i = 1; i < words.Length; i++)
-            {
-                args[i-1] = words[i];
-            }
-
-            return Commands.EvaluateCommand(command, args, sim, this);
+            pythonEngine.Execute(input, pythonScope);
         }
 
         public void LogAvailableScripts()
@@ -129,6 +150,26 @@ namespace EM_Sim
             }
         }
 
+        private string Evaluate(string expression)
+        {
+            try
+            {
+                DataTable table = new DataTable();
+                table.Reset();
+                table.Columns.Add("expression", typeof(string), expression);
+                DataRow row = table.NewRow();
+                table.Rows.Add(row);
+
+                string result = (string)row["expression"];
+
+                return result;
+            }
+            catch
+            {
+                return expression;
+            }
+        }
+
         private string EvaluateVariableExpression(string expr, Dictionary<string, string> vars)
         {
             foreach (string varName in vars.Keys)
@@ -140,7 +181,7 @@ namespace EM_Sim
             Console.WriteLine("Expression: " + expr);
             if (expr.Contains("+") || expr.Contains("-") || expr.Contains("*") || expr.Contains("/") || expr.Contains("=") || expr.Contains("<") || expr.Contains(">"))
             {
-                Expression e = new Expression(expr);
+                /*Expression e = new Expression(expr);
                 try
                 {
                     return e.Evaluate().ToString();
@@ -149,7 +190,8 @@ namespace EM_Sim
                 {
                     Console.WriteLine("Error with expression... returning original!");
                     return expr;
-                }
+                }*/
+                return Evaluate(expr);
             }
             else
             {
