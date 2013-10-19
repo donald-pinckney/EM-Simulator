@@ -44,9 +44,9 @@ Express setup:
 The EM Simulator console is the primary way to interact with the world: you use it to add charges, toggle vectors and
 field lines on or off, delete charges, etc.
 
-Open the console by pressing *tab*.
+The console uses **Python**, specificaly [IronPython](http://ironpython.net/) as an interpreter.
 
-*Syntax Conventions:* When a command asks for a vector argument, always specify it in the format: `x,y,z`
+Open the console by pressing *tab*.
 
 *Math Conventions:* EM Simulator uses a left-handed, Y up coordinate system.
 
@@ -56,26 +56,26 @@ to fully interact with EM Simulator, to get the best view of the charges and ele
 
 **Electric dipole setup**
 ```
-add charge -10,0,0 -0.2
-add charge 10,0,0 0.2
+addCharge(-10,0,0,-0.2)
+addCharge(10,0,0,0.2)
 ```
 
 **Now view field lines instead of vectors**
 ```
-toggle lines
-toggle vectors
+toggleLines()
+toggleVectors()
 ```
 ![Dipole Screenshot](https://raw.github.com/donald-pinckney/EM-Simulator/screenshots/screenshots/1.png "Dipole Screenshot")
 
 **Add a third charge**
 ```
-add charge -5,20,25 0.4
+addCharge(-5,20,25,0.4)
 ```
 
 **Now view the vector field rather than the field lines**
 ```
-toggle vectors
-toggle lines
+toggleVectors()
+toggleLines()
 ```
 
 ![Vector Field Screenshot](https://raw.github.com/donald-pinckney/EM-Simulator/screenshots/screenshots/0.png "Vector Field Screenshot")
