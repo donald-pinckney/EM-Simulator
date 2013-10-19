@@ -44,12 +44,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="sphere.ems">
-      <Name>sphere</Name>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="capacitor.py">
       <Name>capacitor</Name>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

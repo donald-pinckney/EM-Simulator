@@ -31,6 +31,11 @@ namespace EM_Sim
         public static EMConsole console;
         public static EMSim sim;
 
+        public static void Help()
+        {
+            console.Log(helpTexts["help"]);
+        }
+
         public static void Help(string arg0)
         {
             if (arg0 != null && helpTexts.Keys.Contains(arg0))

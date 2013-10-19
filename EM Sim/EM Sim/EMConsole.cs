@@ -29,6 +29,8 @@ namespace EM_Sim
         dynamic pythonScope;
 
         private List<string> lines = new List<string>();
+        private List<string> commandHistory = new List<string>();
+        private int historyIndex = -1;
         public EMConsole(GraphicsDevice d, ContentManager content, EMSim sim)
         {
             device = d;
@@ -37,6 +39,7 @@ namespace EM_Sim
             spriteBatch = new SpriteBatch(device);
 
             EventInput.EventInput.CharEntered += CharEnteredHandler;
+            EventInput.EventInput.KeyDown += KeyDownHandler;
 
             int fullWidth = sim.fullscreenWidth;
             int fullHeight = sim.fullscreenHeight;
@@ -62,7 +65,8 @@ def print(*args, **kwargs):
 
             pythonScope.logf = new Action<dynamic, dynamic>(Logf);
             pythonScope.log = new Action<dynamic>(Log);
-            pythonScope.help = new Action<string>(Commands.Help);
+            pythonScope.help = new Action(Commands.Help);
+            pythonScope.helpc = new Action<string>(Commands.Help);
             pythonScope.quit = new Action(Commands.Quit);
             pythonScope.clear = new Action(Commands.Clear);
             pythonScope.addCharge = new Action<float, float, float, float>(Commands.AddCharge);
@@ -97,6 +101,39 @@ def print(*args, **kwargs):
         private bool tabToggle = false;
         private string inputText = "";
 
+        public void KeyDownHandler(object sender, KeyEventArgs e)
+        {
+            if (tabToggle)
+            {
+                bool updated = false;
+                if (e.KeyCode == Keys.Up)
+                {
+                    historyIndex++;
+                    historyIndex = Math.Min(historyIndex, commandHistory.Count - 1);
+                    historyIndex = Math.Max(historyIndex, -1);
+                    updated = true;
+                }
+                else if (e.KeyCode == Keys.Down)
+                {
+                    historyIndex--;
+                    historyIndex = Math.Min(historyIndex, commandHistory.Count - 1);
+                    historyIndex = Math.Max(historyIndex, -1);
+                    updated = true;
+                }
+
+                if (updated)
+                {
+                    if (historyIndex < 0)
+                    {
+                        inputText = "";
+                    }
+                    else
+                    {
+                        inputText = commandHistory[historyIndex];
+                    }
+                }
+            }
+        }
 
         public void CharEnteredHandler(object sender, CharacterEventArgs e)
         {
@@ -108,7 +145,6 @@ def print(*args, **kwargs):
 
             if (tabToggle)
             {
-                //Console.WriteLine((int)e.Character);
                 if (e.Character >= 32 && e.Character <= 126) // If the key is a printable ascii character, add it to the current input line
                 {
                     inputText += e.Character;
@@ -142,6 +178,8 @@ def print(*args, **kwargs):
             {
                 Log("Error evaluating input: " + e.Message);
             }
+            commandHistory.Insert(0, input);
+            historyIndex = -1;
         }
 
         public void LogAvailableScripts()
