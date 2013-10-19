@@ -14,7 +14,6 @@ using EventInput;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using Microsoft.CSharp;
-using System.Collections.Generic;
 
 namespace EM_Sim
 {
@@ -148,12 +147,12 @@ def print(*args, **kwargs):
         public void LogAvailableScripts()
         {
             Log("Available scripts:");
-            string[] scripts = System.IO.Directory.GetFiles("Content", "*.ems");
+            string[] scripts = System.IO.Directory.GetFiles("Content", "*.py");
             string scriptNames = "";
             foreach (string script in scripts)
             {
                 string scriptName = script.Replace("Content\\", "");
-                scriptName = scriptName.Replace(".ems", "");
+                scriptName = scriptName.Replace(".py", "");
                 scriptNames += scriptName + " ";
             }
             Log(scriptNames);
@@ -162,13 +161,11 @@ def print(*args, **kwargs):
         {
             try
             {
-                string[] script = System.IO.File.ReadAllLines("Content\\" + scriptName + ".ems");
-                ExecuteScriptLines(script);
-
+                pythonEngine.ExecuteFile("Content\\" + scriptName + ".py", pythonScope);
             }
-            catch
+            catch(Exception e)
             {
-                Log("No script named \"" + scriptName + "\" found.");
+                Log("Error executing \"" + scriptName + "\": " + e.Message);
             }
         }
 
@@ -192,172 +189,6 @@ def print(*args, **kwargs):
             }
         }
 
-        private string EvaluateVariableExpression(string expr, Dictionary<string, string> vars)
-        {
-            foreach (string varName in vars.Keys)
-            {
-                string val = vars[varName];
-                string literalVar = "$" + varName;
-                expr = expr.Replace(literalVar, val);
-            }
-            Console.WriteLine("Expression: " + expr);
-            if (expr.Contains("+") || expr.Contains("-") || expr.Contains("*") || expr.Contains("/") || expr.Contains("=") || expr.Contains("<") || expr.Contains(">"))
-            {
-                /*Expression e = new Expression(expr);
-                try
-                {
-                    return e.Evaluate().ToString();
-                }
-                catch
-                {
-                    Console.WriteLine("Error with expression... returning original!");
-                    return expr;
-                }*/
-                return Evaluate(expr);
-            }
-            else
-            {
-                return expr;
-            }
-        }
-        private void ExecuteScriptLines(string[] lines)
-        {
-            Dictionary<string, string> variables = new Dictionary<string, string>();
-            Dictionary<string, int> labels = new Dictionary<string,int>();
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string input = lines[i];
-                if (input.Length == 0) // Allows whitespace in script
-                {
-                    continue;
-                }
-
-                string[] words = input.Split(' ');
-                string command = words[0];
-                if (command.Contains("#")) // Allows for single-line comments in script
-                {
-                    continue;
-                }
-                string[] args = new string[words.Length-1];
-                for(int j = 1; j < words.Length; j++)
-                {
-                    args[j-1] = words[j];
-                }
-
-
-
-                // Process input for goto labels
-                if (command == "label")
-                {
-                    if (args.Length < 1)
-                    {
-                        Log("Invalid label command");
-                        continue;
-                    }
-
-                    string labelName = EvaluateVariableExpression(args[0], variables);
-                    labels[labelName] = i;
-
-                    command = args[1];
-                    input = command;
-                    string[] newArgs = new string[args.Length - 2];
-                    for (int j = 2; j < args.Length; j++)
-                    {
-                        newArgs[j - 2] = args[j];
-                        input += " " + args[j];
-                    }
-                    args = newArgs;
-                }
-
-                if (command == "if")
-                {
-                    if (args.Length < 2)
-                    {
-                        Log("Invalid if command");
-                        continue;
-                    }
-
-                    string condition = args[0];
-                    string result = EvaluateVariableExpression(condition, variables);
-                    if (result == "False")
-                    {
-                        continue;
-                    }
-                    else if (result != "True")
-                    {
-                        Log("Invalid if condition");
-                    }
-
-                    // Set the stuff after the condition to the new command to evaluate
-                    command = args[1];
-                    input = command;
-                    string[] newArgs = new string[args.Length - 2];
-                    for (int j = 2; j < args.Length; j++)
-                    {
-                        newArgs[j - 2] = args[j];
-                        input += " " + args[j];
-                    }
-                    args = newArgs;
-                }
-
-                if (command == "set")
-                {
-                    if (args.Length != 2)
-                    {
-                        Log("Invalid set command");
-                        continue;
-                    }
-
-                    string varName = args[0];
-                    string varVal = args[1];
-                    variables[varName] = EvaluateVariableExpression(varVal, variables);
-                }
-                else if (command == "echo")
-                {
-                    if (args.Length != 1)
-                    {
-                        Log("Invalid echo command");
-                        continue;
-                    }
-
-                    string result = EvaluateVariableExpression(args[0], variables);
-                    Console.WriteLine("Result: " + result);
-                    Log(result);
-                }
-                else if (command == "goto")
-                {
-                    if (args.Length != 1)
-                    {
-                        Log("Invalid goto command");
-                        continue;
-                    }
-
-                    int lineNumber = 0;
-                    bool isLineNumber = int.TryParse(args[0], out lineNumber);
-                    
-                    if (isLineNumber)
-                    {
-                        lineNumber--;
-                    }
-                    else
-                    {
-                        lineNumber = labels[args[0]];
-                    }
-
-                    i = lineNumber - 1;
-                    continue;
-                }
-                else
-                {
-                    if (command.Length == 0 || command.Contains("#"))
-                    {
-                        continue;
-                    }
-                    EvaluateInput(EvaluateVariableExpression(input, variables));
-                }
-            }
-        }
 
         const int maxLineWidth = 70;
         public void Draw()

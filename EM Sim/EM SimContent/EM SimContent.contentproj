@@ -50,10 +50,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="capacitor.ems">
+    <None Include="capacitor.py">
       <Name>capacitor</Name>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
