@@ -46,8 +46,9 @@ namespace EM_Sim
             overlay.LoadContent();
 
 
-            // TEST IRON PYTHON!
+            // Setup python interepreter
             Commands.console = this;
+            Commands.sim = this.sim;
             pythonEngine = Python.CreateEngine();
             var paths = pythonEngine.GetSearchPaths();
             paths.Add(@"C:\Program Files (x86)\IronPython 2.7\Lib");
@@ -55,25 +56,39 @@ namespace EM_Sim
             pythonScope = pythonEngine.CreateScope();
             pythonEngine.Execute(@"from __future__ import print_function
 def print(*args, **kwargs):
-    Log(args, kwargs)
+    logf(args, kwargs)
 
 ", pythonScope);
             
 
-            pythonScope.Log = new Action<dynamic, dynamic>(Log);
-            pythonScope.Help = new Action<string>(Commands.Help);
-            pythonScope.quit = new Action(null); // TODO: Link commands
-
-            pythonEngine.Execute(@"print(""hello"")", pythonScope);
+            pythonScope.logf = new Action<dynamic, dynamic>(Logf);
+            pythonScope.log = new Action<dynamic>(Log);
+            pythonScope.help = new Action<string>(Commands.Help);
+            pythonScope.quit = new Action(Commands.Quit);
+            pythonScope.clear = new Action(Commands.Clear);
+            pythonScope.addCharge = new Action<float, float, float, float>(Commands.AddCharge);
+            pythonScope.addSphere = new Action<float, float, float, float, float>(Commands.AddSphere);
+            pythonScope.ls = new Action(Commands.Ls);
+            pythonScope.select = new Action<int>(Commands.Select);
+            pythonScope.deleteID = new Action<int>(Commands.Delete);
+            pythonScope.delete = new Action(Commands.Delete);
+            pythonScope.toggleVectors = new Action(Commands.ToggleVectors);
+            pythonScope.toggleLines = new Action(Commands.ToggleLines);
+            pythonScope.genVectors = new Action(Commands.GenVectors);
+            pythonScope.genLines = new Action(Commands.GenLines);
+            pythonScope.autogen = new Action<bool>(Commands.Autogen);
+            pythonScope.evalE = new Action<float, float, float>(Commands.EvalE);
+            pythonScope.lsScripts = new Action(Commands.LsScripts);
+            pythonScope.run = new Action<string>(Commands.Run);
         }
 
-        public void Log(dynamic arg0, dynamic arg1)
+        public void Logf(dynamic arg0, dynamic arg1)
         {
             Log(arg0[0].ToString());
         }
-        public void Log(String line)
+        public void Log(dynamic line)
         {
-            lines.Add(line);
+            lines.Add(line.ToString());
         }
         public void ClearLog()
         {
@@ -120,7 +135,14 @@ def print(*args, **kwargs):
         // This method will evaluate a line of text entered from the console
         private void EvaluateInput(string input)
         {
-            pythonEngine.Execute(input, pythonScope);
+            try
+            {
+                pythonEngine.Execute(input, pythonScope);
+            }
+            catch(Exception e)
+            {
+                Log("Error evaluating input: " + e.Message);
+            }
         }
 
         public void LogAvailableScripts()

@@ -29,6 +29,7 @@ namespace EM_Sim
 
 
         public static EMConsole console;
+        public static EMSim sim;
 
         public static void Help(string arg0)
         {
@@ -42,245 +43,137 @@ namespace EM_Sim
             }
         }
 
-        // Massive method to parse all possible commands
-        public static string EvaluateCommand(string command, string[] args, EMSim sim, EMConsole console)
+        public static void Quit()
         {
-            if (command == "help")
-            {
-                if (args.Length == 0)
-                {
-                    return helpTexts["help"];
-                }
-                else
-                {
-                    string helpArg = args[0];
-                    if (helpTexts.ContainsKey(helpArg) == true)
-                    {
-                        return helpTexts[helpArg];
-                    }
-                    else
-                    {
-                        return helpTexts["help"];
-                    }
-        
-                }
-            }
-            else if (command == "quit")
-            {
-                Environment.Exit(0);
-                return "";
-            }
-            else if (command == "clear")
-            {
-                console.ClearLog();
-                return "";
-            }
-            else if (command == "add")
-            {
-                if (args.Length < 1)
-                {
-                    return helpTexts["add"];
-                }
+            Environment.Exit(0);
+        }
 
-                if (args[0] == "charge")
-                {
-                    if (args.Length != 3) return helpTexts["add"];
+        public static void Clear()
+        {
+            console.ClearLog();
+        }
 
-                    string vectorString = args[1];
-                    string chargeString = args[2];
-
-                    Vector3 pos = ParseVector3(vectorString);
-                    float charge = float.Parse(chargeString);
-                    sim.AddCharge(pos, charge);
-                    if (shouldAutogen)
-                    {
-                        sim.GetField().generateArrows();
-                        sim.GetField().generateEFieldLines();
-                    }
-                    //console.Log("Adding charge: " + pos);
-                    return "";
-                }
-                else if (args[0] == "sphere")
-                {
-                    if (args.Length != 4) return helpTexts["add"];
-
-                    Vector3 center = ParseVector3(args[1]);
-                    float radius = float.Parse(args[2]);
-                    float charge = float.Parse(args[3]);
-                    
-                    int numLat = 20;
-                    for (int i = 0; i < numLat; i++)
-                    {
-                        double lat = -MathHelper.PiOver2 + Math.PI * ((double)i / (double)(numLat - 1));
-                        float y = radius * (float)Math.Sin(lat) + center.Y;
-
-                        double circumference = 2 * Math.PI * radius * (float)Math.Cos(lat);
-                        int numLon = (int)(40 * (circumference / (40 * Math.PI)));
-                        for (int n = 0; n < numLon; n++)
-                        {
-                            double lon = MathHelper.TwoPi * ((double)n / (double)(numLon));
-                            
-                            float x = radius * (float)Math.Cos(lat) * (float)Math.Cos(lon) + center.X;
-                            float z = radius * (float)Math.Cos(lat) * (float)Math.Sin(lon) + center.Z;
-
-                            Vector3 pos = new Vector3(x, y, z);
-                            sim.AddCharge(pos, charge);
-                        }
-                    }
-                    return "";
-                }
-                else
-                {
-                    return "Unknown object to add";
-                }
-            }
-            else if (command == "ls")
+        public static void AddCharge(float x, float y, float z, float charge)
+        {
+            Vector3 pos = new Vector3(x, y, z);
+            sim.AddCharge(pos, charge);
+            if (shouldAutogen)
             {
-                List<PointCharge> charges = sim.GetField().GetCharges();
-                for (int i = 0; i < charges.Count; i++)
-                {
-                    console.Log(charges[i].ToString());
-                }
-                return "";
-            }
-            else if (command == "select")
-            {
-                if (args.Length != 1)
-                {
-                    return helpTexts["select"];
-                }
-                else
-                {
-                    selectedID = int.Parse(args[0]);
-                    return "Selected ID " + selectedID;
-                }
-            }
-            else if (command == "delete")
-            {
-                if (args.Length == 1)
-                {
-                    int id = int.Parse(args[0]);
-                    sim.GetField().DeleteChargeWithID(id);
-                    return "Deleted ID " + id;
-                }
-
-                if (selectedID != -1)
-                {
-                    sim.GetField().DeleteChargeWithID(selectedID);
-                    string ret = "Deleted ID " + selectedID;
-                    selectedID = -1;
-                    return ret;
-                }
-                return "No currently selected charge";
-            }
-            else if (command == "toggle")
-            {
-                if (args.Length != 1) return helpTexts["toggle"];
-
-                if (args[0] == "vectors")
-                {
-                    if (sim.GetField().shouldDrawVectors)
-                    {
-                        sim.GetField().shouldDrawVectors = false;
-                        return "Disabled vectors";
-                    }
-                    else
-                    {
-                        sim.GetField().shouldDrawVectors = true;
-                        return "Enabled vectors";
-                    }
-                }
-                else if (args[0] == "lines")
-                {
-                    if (sim.GetField().shouldDrawLines)
-                    {
-                        sim.GetField().shouldDrawLines = false;
-                        return "Disabled lines";
-                    }
-                    else
-                    {
-                        sim.GetField().shouldDrawLines = true;
-                        return "Enabled lines";
-                    }
-                }
-                else
-                {
-                    return "Unknown toggle argument";
-                }
-            }
-            else if (command == "gen")
-            {
-                if (args.Length != 1) return helpTexts["gen"];
-
-                if (args[0] == "vectors")
-                {
-                    sim.GetField().generateArrows();
-                    return "";
-                }
-                else if (args[0] == "lines")
-                {
-                    sim.GetField().generateEFieldLines();
-                    return "";
-                }
-                else
-                {
-                    return "Unknown argument for gen";
-                }
-            }
-            else if (command == "autogen")
-            {
-                if (args.Length != 1) return helpTexts["autogen"];
-                if (args[0] == "on")
-                {
-                    shouldAutogen = true;
-                }
-                else
-                {
-                    shouldAutogen = false;
-                }
-                return "";
-            }
-            else if (command == "eval")
-            {
-                if (args.Length < 2)
-                {
-                    return helpTexts["eval"];
-                }
-                if (args[0] == "E")
-                {
-                    Vector3 pos = ParseVector3(args[1]);
-                    Vector3 val = sim.GetField().r(pos.X, pos.Y, pos.Z);
-                    return val.ToString();
-                }
-                else
-                {
-                    return "";
-                }
-            }
-            else if (command == "run")
-            {
-                if (args.Length != 1)
-                {
-                    console.LogAvailableScripts();
-                    return "";
-                }
-
-                console.RunScript(args[0]);
-                return "";
-            }
-            else
-            {
-                return "Unknown command";
+                sim.GetField().generateArrows();
+                sim.GetField().generateEFieldLines();
             }
         }
 
-
-        private static Vector3 ParseVector3(string vectorString)
+        public static void AddSphere(float xC, float yC, float zC, float radius, float charge)
         {
-            string[] components = vectorString.Split(',');
-            if (components.Length != 3) return Vector3.Zero;
+            Vector3 center = new Vector3(xC, yC, zC);
 
-            return new Vector3(float.Parse(components[0]), float.Parse(components[1]), float.Parse(components[2])); 
+            int numLat = 20;
+            for (int i = 0; i < numLat; i++)
+            {
+                double lat = -MathHelper.PiOver2 + Math.PI * ((double)i / (double)(numLat - 1));
+                float y = radius * (float)Math.Sin(lat) + center.Y;
+
+                double circumference = 2 * Math.PI * radius * (float)Math.Cos(lat);
+                int numLon = (int)(40 * (circumference / (40 * Math.PI)));
+                for (int n = 0; n < numLon; n++)
+                {
+                    double lon = MathHelper.TwoPi * ((double)n / (double)(numLon));
+
+                    float x = radius * (float)Math.Cos(lat) * (float)Math.Cos(lon) + center.X;
+                    float z = radius * (float)Math.Cos(lat) * (float)Math.Sin(lon) + center.Z;
+
+                    Vector3 pos = new Vector3(x, y, z);
+                    sim.AddCharge(pos, charge);
+                }
+            }
+        }
+
+        public static void Ls()
+        {
+            List<PointCharge> charges = sim.GetField().GetCharges();
+            for (int i = 0; i < charges.Count; i++)
+            {
+                console.Log(charges[i].ToString());
+            }
+        }
+
+        public static void Select(int id)
+        {
+            selectedID = id;
+        }
+
+        public static void Delete(int id)
+        {
+            sim.GetField().DeleteChargeWithID(id);
+            console.Log("Deleted ID " + id);
+        }
+
+        public static void Delete()
+        {
+            if (selectedID != -1)
+            {
+                sim.GetField().DeleteChargeWithID(selectedID);
+                console.Log("Deleted ID " + selectedID);
+                selectedID = -1;
+            }
+        }
+
+        public static void ToggleVectors()
+        {
+            if (sim.GetField().shouldDrawVectors)
+            {
+                sim.GetField().shouldDrawVectors = false;
+                console.Log("Disabled vectors");
+            }
+            else
+            {
+                sim.GetField().shouldDrawVectors = true;
+                console.Log("Enabled vectors");
+            }
+        }
+
+        public static void ToggleLines()
+        {
+            if (sim.GetField().shouldDrawLines)
+            {
+                sim.GetField().shouldDrawLines = false;
+                console.Log("Disabled lines");
+            }
+            else
+            {
+                sim.GetField().shouldDrawLines = true;
+                console.Log("Enabled lines");
+            }
+        }
+
+        public static void GenVectors()
+        {
+            sim.GetField().generateArrows();
+        }
+        public static void GenLines()
+        {
+            sim.GetField().generateEFieldLines();
+        }
+
+        public static void Autogen(bool isOn)
+        {
+            shouldAutogen = isOn;
+        }
+
+        public static void EvalE(float x, float y, float z)
+        {
+            console.Log(sim.GetField().r(x, y, z).ToString());
+        }
+
+        public static void LsScripts()
+        {
+            console.LogAvailableScripts();
+        }
+
+        public static void Run(string scriptName)
+        {
+            console.RunScript(scriptName);
         }
     }
 }
