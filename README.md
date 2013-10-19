@@ -46,9 +46,9 @@ field lines on or off, delete charges, etc.
 
 The console uses **Python**, specificaly [IronPython](http://ironpython.net/) as an interpreter.
 
-Open the console by pressing *tab*.
-
 *Math Conventions:* EM Simulator uses a left-handed, Y up coordinate system.
+
+Open the console by pressing **tab**.
 
 ####Examples
 To get familiar with the console in EM Simulator, run these examples sequentially.  Use the mouse and keyboard controlls
