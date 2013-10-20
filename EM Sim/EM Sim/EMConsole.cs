@@ -13,7 +13,6 @@ using Microsoft.Xna.Framework.Media;
 using EventInput;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
-using Microsoft.CSharp;
 
 namespace EM_Sim
 {

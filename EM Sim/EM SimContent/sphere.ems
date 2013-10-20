@@ -1,4 +1,0 @@
-autogen off
-add sphere 0,0,0 20 0.05
-autogen on
-gen vectors
