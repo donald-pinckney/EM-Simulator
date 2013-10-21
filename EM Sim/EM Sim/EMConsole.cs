@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -12,7 +13,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using EventInput;
 using IronPython.Hosting;
-using Microsoft.Scripting.Hosting;
+//using Microsoft.Scripting.Hosting;
 
 namespace EM_Sim
 {
@@ -24,12 +25,24 @@ namespace EM_Sim
         EMSim sim;
         RectangleOverlay overlay;
 
-        ScriptEngine pythonEngine;
+        MethodInfo execMethod;
+        MethodInfo execFileMethod;
+
+        object pythonEngine;
         dynamic pythonScope;
 
         private List<string> lines = new List<string>();
         private List<string> commandHistory = new List<string>();
         private int historyIndex = -1;
+
+        private void invokeCode(string code)
+        {
+            object[] parameters = {code, pythonScope};
+            execMethod.Invoke(pythonEngine, parameters);
+        }
+
+
+
         public EMConsole(GraphicsDevice d, ContentManager content, EMSim sim)
         {
             device = d;
@@ -50,24 +63,68 @@ namespace EM_Sim
             // Setup python interepreter
             Commands.console = this;
             Commands.sim = this.sim;
-            pythonEngine = Python.CreateEngine();
-            var paths = pythonEngine.GetSearchPaths();
-            paths.Add(@"C:\Program Files (x86)\IronPython 2.7\Lib");
-            pythonEngine.SetSearchPaths(paths);
-            pythonScope = pythonEngine.CreateScope();
-            pythonEngine.Execute(@"from __future__ import print_function
+            //Assembly asm = Assembly.LoadFrom("Content\\Microsoft.Scripting.dll");
+            Assembly asm = Assembly.LoadFrom("Microsoft.Scripting.dll");
+            Type engineType = asm.GetType("Microsoft.Scripting.Hosting.ScriptEngine");
+            Type pythonType = typeof(Python);
+            Type scopeType = asm.GetType("Microsoft.Scripting.Hosting.ScriptScope");
+            Type[] empty = {};
+            Type[] stringParam = { typeof(string) };
+            Type[] execParams = { typeof(string), scopeType };
+            Type[] setPathsParams = {typeof(ICollection<string>)};
+            MethodInfo[] allMethods = engineType.GetMethods();
+            MethodInfo createMethod = pythonType.GetMethod("CreateEngine", empty);
+            MethodInfo getSearchMethod = engineType.GetMethod("GetSearchPaths", empty);
+            MethodInfo setSearchMethod = engineType.GetMethod("SetSearchPaths", setPathsParams);
+            MethodInfo createScopeMethod = engineType.GetMethod("CreateScope", empty);
+            foreach (MethodInfo m in allMethods)
+            {
+                if (m.Name == "Execute" && m.GetParameters().Length == 2)
+                {
+                    execMethod = m;
+                    break;
+                }
+            }
+            
+            /*try
+            {
+                execMethod = engineType.GetMethod("Execute", execParams);
+            }
+            catch (AmbiguousMatchException err)
+            {
+                Console.WriteLine(err.Data.ToString());
+            }*/
+            execFileMethod = engineType.GetMethod("ExecuteFile", execParams);
+            //return;
+
+            pythonEngine = createMethod.Invoke(null, null);
+            //pythonEngine = (object)Python.CreateEngine();
+            dynamic paths = getSearchMethod.Invoke(pythonEngine, null);
+
+            //paths.Add(@"C:\Program Files (x86)\IronPython 2.7\Lib");
+            paths.Add(@"Content\Lib");
+            dynamic[] pathsParam = {paths};
+            setSearchMethod.Invoke(pythonEngine, pathsParam);
+
+            pythonScope = createScopeMethod.Invoke(pythonEngine, null);
+
+            /*ScriptEngine e = Python.CreateEngine();
+            ScriptScope s = e.CreateScope();
+            e.SetSearchPaths(*/
+
+            invokeCode(@"from __future__ import print_function
 def print(*args, **kwargs):
     logf(args, kwargs)
 
-", pythonScope);
-            
-            pythonEngine.Execute(@"def help(command = None):
+");
+
+            invokeCode(@"def help(command = None):
     if(command is None):
         helpbackup()
     else:
         helpcommand(command)
 
-", pythonScope);
+");
 
             pythonScope.logf = new Action<dynamic, dynamic>(Logf);
             pythonScope.log = new Action<dynamic>(Log);
@@ -180,7 +237,7 @@ def print(*args, **kwargs):
         {
             try
             {
-                pythonEngine.Execute(input, pythonScope);
+                invokeCode(input);
             }
             catch(Exception e)
             {
@@ -207,7 +264,8 @@ def print(*args, **kwargs):
         {
             try
             {
-                pythonEngine.ExecuteFile("Content\\" + scriptName + ".py", pythonScope);
+                object[] parameters = { "Content\\" + scriptName + ".py", pythonScope };
+                execFileMethod.Invoke(pythonEngine, parameters);
             }
             catch(Exception e)
             {
@@ -243,7 +301,7 @@ def print(*args, **kwargs):
             {
                 spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, null, DepthStencilState.Default, null);
 
-                overlay.Draw(spriteBatch);
+                //overlay.Draw(spriteBatch);
 
                 // Draw previous messages
                 List<string> linesToRender = new List<string>(lines);
