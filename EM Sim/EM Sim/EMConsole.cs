@@ -148,6 +148,7 @@ def print(*args, **kwargs):
             pythonScope.evalE = new Action<float, float, float>(Commands.EvalE);
             pythonScope.lsScripts = new Action(Commands.LsScripts);
             pythonScope.run = new Action<string>(Commands.Run);
+            pythonScope.openContentDir = new Action(Commands.OpenContentDir);
         }
 
         public void Logf(dynamic arg0, dynamic arg1)

@@ -73,7 +73,14 @@ namespace EM_Sim
             EventInput.EventInput.KeyUp += KeyUpEvent;
 
             screenshotRender = new RenderTarget2D(device, windowedWidth, windowedHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
-            console.Log("Welcome to EM Simulator!  To get started, move your position in space with WASD, and rotate camera with mouse.  Run help() for a list of available commands.");
+            console.Log("Welcome to EM Simulator!  To get started, open and close this console with TAB, move your position in space with WASD, and rotate camera with mouse.  Run help() for a list of available commands.");
+
+            field.AddCharge(new Vector3(15, 2, 0), 0.1f);
+            field.AddCharge(new Vector3(0, 0, 8), -0.05f);
+            field.generateArrows();
+            field.generateEFieldLines();
+
+            console.CharEnteredHandler(this, new CharacterEventArgs((char)9, 0));
         }
 
         public EField GetField()

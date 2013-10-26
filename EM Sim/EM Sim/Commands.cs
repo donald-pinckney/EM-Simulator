@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 
 namespace EM_Sim
@@ -10,8 +11,7 @@ namespace EM_Sim
     {
         readonly static Dictionary<string, string> helpTexts = new Dictionary<string, string>
         {
-            {"help", "Commands: help() helpc(command) quit() clear() addCharge(x,y,z,\u00b5C) addSphere(x,y,z,radius,\u00b5C) modifyCharge(property, value) modifyChargeID(id, propery, value) ls() select(id) delete() deleteID(id) toggleVectors() toggleLines() evalE(x,y,z) genVectors() genLines() autogen(isOn) lsScripts() run(script)"},
-            {"helpc", "helpc(command): Display help for a specific command. Ex: helpc(\"addCharge\")"},
+            {"help", "help(command): See help for a specific command, or view this general help: Commands: help() quit() clear() addCharge(x,y,z,\u00b5C) addSphere(x,y,z,radius,\u00b5C) modifyCharge(property, value) modifyChargeID(id, propery, value) ls() select(id) delete() deleteID(id) toggleVectors() toggleLines() evalE(x,y,z) genVectors() genLines() autogen(isOn) lsScripts() run(script) openContentDir()"},
             {"quit", "quit(): Quit the program."},
             {"clear", "clear(): Clear the console of text."},
             {"addCharge", "addCharge(x,y,z,\u00b5C): Add a point charge. Ex: addCharge(3,0,0,0.2)"},
@@ -29,7 +29,8 @@ namespace EM_Sim
             {"genLines", "genLines(): Force the recalculation of the E field lines."},
             {"autogen", "autogen(isOn): Turn on or off automatic generation of E field and E field lines when adding charges. Defaults to True."},
             {"lsScripts", "lsScripts(): List the python scripts available in the Content directory"},
-            {"run", "run(script): Run a script with a given name in the Content. Specify the script without a file extension. Ex: run(\"capacitor\")"}
+            {"run", "run(script): Run a script with a given name in the Content. Specify the script without a file extension. Ex: run(\"capacitor\")"},
+            {"openContentDir", "openContentDir(): Opens the Content directory, which is where Python scrips will be read from with run()"}
         };
 
         static int selectedID = -1;
@@ -240,6 +241,11 @@ namespace EM_Sim
         public static void Run(string scriptName)
         {
             console.RunScript(scriptName);
+        }
+
+        public static void OpenContentDir()
+        {
+            Process.Start(sim.Content.RootDirectory);
         }
     }
 }
