@@ -82,3 +82,18 @@ toggleLines()
 
 ##Console Command Documentation
 Please refer to the [wiki page](https://github.com/donald-pinckney/EM-Simulator/wiki/List-of-Console-Commands) for documentaion and a full list of all available console commands.
+
+##Scripting Documentation
+The EM Simulator console uses Python as interpreter.
+Thus, it can elegantly load and execute Python scripts, automating commands in the console.
+To see a quick demo of script execution in action, simply type `run("capacitor")` in the console, and after a few seconds it will generatea  parallel plate capacitor.
+
+To make your own Python scripts, write Python code as you normally would, and then make the same Python function calls as you do in the console.
+For example, consider the follow Python code, which generates a row of point charges:
+```
+for x in range(0, 10):
+    addCharge(x,0,0,0.05)
+```
+Then, place your Python files in the Content directory available in %userprofile%\AppData\Local\Apps.
+Unfortunately, as of now, you will have to hunt in subfolders, as the installation folder is obsfuscated by XNA.
+Future versions of EM Simulator will allow much easier access to the Content folder.
