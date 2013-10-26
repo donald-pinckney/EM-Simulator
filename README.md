@@ -94,6 +94,6 @@ For example, consider the follow Python code, which generates a row of point cha
 for x in range(0, 10):
     addCharge(x,0,0,0.05)
 ```
-Then, place your Python files in the Content directory available in %userprofile%\AppData\Local\Apps.
-Unfortunately, as of now, you will have to hunt in subfolders, as the installation folder is obsfuscated by XNA.
-Future versions of EM Simulator will allow much easier access to the Content folder.
+Then, run the command `openContentDir()` which will open the Content directory in Windows Explorer.
+Place your Python files in the Content directory!
+They should then be recognized if you run `lsScripts()`
